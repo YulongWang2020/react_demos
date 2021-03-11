@@ -1,19 +1,20 @@
 import React, {Component} from 'react';
 import axios from "axios";
+import PubSub from 'pubsub-js'
 
 class Index extends Component {
     search =()=>{
         //get input
         //连续解构赋值并重命名
         const {keyWordNode:{value:keyWord}} = this
-        this.props.updateAppState({isFirst:false,isLoading:true})
+        PubSub.publish('state', {isFirst:false,isLoading:true});
         //send request
         axios.get(`https://api.github.com/search/users?q=${keyWord}`).then(
             response =>{
-                this.props.updateAppState({isLoading:false,users:response.data.items})
+                PubSub.publish('state', {isLoading:false,users:response.data.items});
             },
             error=>{
-                this.props.updateAppState({isLoading:false,err:error.message})
+                PubSub.publish('state', {isLoading:false,err:error.message});
             }
         )
     }
@@ -25,7 +26,6 @@ class Index extends Component {
                 <div>
                     <input ref={c => this.keyWordNode = c } type="text" placeholder="enter the name you search"/>&nbsp;
                     <button onClick={this.search}>Search</button>
-
                 </div>
             </section>
         );
